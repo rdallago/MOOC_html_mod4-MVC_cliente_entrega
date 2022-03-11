@@ -60,7 +60,11 @@
                    </div>
                    <div class="actions">
                         <!--Insertar aquí botones de "Show" y "Delete"-->
-                       <button class="edit" data-my-id="${i}">editar</button>
+                        <button class="show" data-my-id="${i}">ver</button>
+                        <button class="edit" data-my-id="${i}">editar</button>
+                        <button class="delete" data-my-id="${i}">borrar</button>
+
+
                     </div>
                 </div>\n`;
               i = i + 1;
@@ -68,6 +72,9 @@
 
             view += `<div class="actions">
                         <!--Insertar aquí botones de "Añadir" y "Reset"-->
+
+                        <p><button class="new"> Añadir </button><button class="reset"> Reset </button></p>
+
                     </div>`;
 
             return view;
@@ -107,7 +114,8 @@
             return `
              <p>
 
-             
+            La película <b> ${pelicula.titulo}</b> fue
+            dirigida por <b> ${pelicula.director}</b>.
              
              </p>
              <div class="actions">
@@ -115,20 +123,31 @@
              </div>`;
         }
 
+       
+
         const newView = () => {
             // Completar: genera formulario para crear nuevo quiz
             // ...
 
             return `<h2>Crear Película</h2>
+            
+            TITULO<br>
+            <input type="text" id="titulo">
+            <br>
+            DIRECTOR<br>
+            <input type="text" id="director">
+            <br>
+            MINIATURA<br>
+            <input type="text" id="miniatura">
 
-
-
-
+            
 
                 <div class="actions">
+                    <button class="create">Crear</button>
                     <button class="index">Volver</button>
                 </div>`;
         }
+         
 
 
         // CONTROLADORES 
@@ -137,23 +156,42 @@
             document.getElementById('main').innerHTML = indexView(mis_peliculas);
         };
 
+        const cargarContr = (pelis) => {
+            let mis_peliculas = JSON.parse(localStorage.pelis);
+            document.getElementById('main').innerHTML = indexView(mis_peliculas);
+        };
+
         const showContr = (i) => {
             // Completar: controlador que muestra la vista showView(pelicula)
             // ...
+            let mis_peliculas = JSON.parse(localStorage.mis_peliculas);
+            document.getElementById('main').innerHTML = showView(mis_peliculas[i]);
 
         };
 
         const newContr = () => {
             // Completar: controlador que muestra la vista newView()
             // ...
+           
+            document.getElementById('main').innerHTML = newView();
 
         };
 
         const createContr = () => {
             // Completar: controlador que crea una película nueva en el modelo guardado en localStorage
             // ...
-        };
+          
+            let mis_peliculas = JSON.parse(localStorage.mis_peliculas);
+            mis_peliculas.push({titulo:document.getElementById("titulo").value,
+            director:document.getElementById("director").value,
+            "miniatura":document.getElementById("miniatura").value});
 
+            localStorage.mis_peliculas = JSON.stringify(mis_peliculas);
+            indexContr();
+        };
+            
+            
+         
         const editContr = (i) => {
             let pelicula = JSON.parse(localStorage.mis_peliculas)[i];
             document.getElementById('main').innerHTML = editView(i, pelicula);
@@ -171,12 +209,38 @@
         const deleteContr = (i) => {
             // Completar:  controlador que actualiza el modelo borrando la película seleccionada
             // Genera diálogo de confirmación: botón Aceptar devuelve true, Cancel false
+
+          
+
+            var resultado = window.confirm('¿Estas seguro de eliminar la película?');
+            if (resultado === true) {
+                window.alert('Okay, si estas seguro.');
+                let mis_peliculas = JSON.parse(localStorage.mis_peliculas);
+                mis_peliculas.splice(i,1);
+                localStorage.mis_peliculas = JSON.stringify(mis_peliculas);
+                document.getElementById('main').innerHTML = indexView(mis_peliculas);
+
+            } else { 
+                window.alert('Pareces indeciso');
+            }
+
+
+
+
+
+               
+          
+        
+
         };
 
         const resetContr = () => {
             // Completar:  controlador que reinicia el modelo guardado en localStorage con las películas originales
-            
+            //let mis_peliculas = JSON.parse(localStorage.mis_peliculas_iniciales);
+            //localStorage.mis_peliculas = JSON.stringify(mis_peliculas);
+            document.getElementById('main').innerHTML = indexView(mis_peliculas_iniciales);
         };
+    
 
         // ROUTER de eventos
         const matchEvent = (ev, sel) => ev.target.matches(sel);
@@ -186,6 +250,12 @@
             if      (matchEvent(ev, '.index'))  indexContr  ();
             else if (matchEvent(ev, '.edit'))   editContr   (myId(ev));
             else if (matchEvent(ev, '.update')) updateContr (myId(ev));
+            else if (matchEvent(ev, '.show')) showContr (myId(ev));
+            else if (matchEvent(ev, '.new')) newContr ();
+            else if (matchEvent(ev, '.reset')) resetContr ();
+            else if (matchEvent(ev, '.create')) createContr ();
+            else if (matchEvent(ev, '.delete'))   deleteContr   (myId(ev));
+            
             // Completar añadiendo los controladores que faltan
         })
         
